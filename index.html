@@ -899,16 +899,18 @@ function renderCalendar(date){
   }
 
   // ❤️ DÍAS YA MARCADOS
-  else if(registro[iso]){
+// ❤️ DÍAS YA MARCADOS
+  else if (registro && registro[iso]) {
     div.textContent =
-      registro[iso].estado === "marcado" ? "❤️" : "😢";
+    registro[iso].estado === "marcado" ? "❤️" : "😢";
     div.classList.add("marked");
 
-    const msg = mensajes[iso];
-    if(msg){
+  const msg = mensajes?.[iso];
+  if (msg) {
       addTooltipEvents(div, msg);
     }
   }
+
 
   // 🔴 DÍAS PASADOS (DESPUÉS DEL 7)
   else if(d < today){
