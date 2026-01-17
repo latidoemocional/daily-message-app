@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Nuestro Calendario ❤️</title>
+
+<style>
+
+body{
+  font-family: "Poppins", sans-serif;
+  text-align:center;
+  background: linear-gradient(180deg, #fff0f6, #ffffff);
+  min-height:100vh;
+  margin:0;
+  padding:20px;
+  color:#5c2a3d;
+}
+
+
+
+
+
+
+
+
+
+
+.tooltip {
+  position: absolute;
+  background: #fff;
+  color: #c2185b;
+
+  padding: 22px 16px 14px; /* ⬅️ MÁS ESPACIO ARRIBA */
+
+  border-radius: 16px;
+  font-size: 14px;
+  max-width: 240px;
+  line-height: 1.5;
+
+  box-shadow: 0 12px 35px rgba(200,50,100,.25);
+  z-index: 1000;
+
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .2s ease, transform .2s ease;
+  pointer-events: auto;
+}
+
+
+
+
+
+.tooltip,
+.tooltip * {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+  
+
+
+
+.tooltip-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #ff5c8a;
+  font-weight: bold;
+  opacity: .8;
+}
+
+.tooltip-close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+
+  
+.tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #fff transparent transparent transparent;
+}
+
+.tooltip.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+
+
+
+
+
+
+
+
+
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:10px;
+}
+
+
+
+
+.calendar-wrapper{
+  width:100%;
+  display:flex;
+  justify-content:center;
+}
+
+
+
+
+
+.calendar-box{
+  width:100%;
+  max-width:420px;
+  background:#ffffff;
+  padding:16px;
+  border-radius:24px;
+  box-shadow:0 10px 30px rgba(200,50,100,.15);
+}
+
+
+
+
+
+
+
+
+
+.weekdays{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  max-width:420px;
+  margin:0 auto 10px;
+  font-size:13px;
+  font-weight:600;
+  color:#c94b78;
+}
+
+.weekdays div{
+  text-align:center;
+}
+
+
+
+
+
+
+
+.day{
+  aspect-ratio:1;
+  width:100%;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:500;
+  transition:.3s;
+
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+
+
+.disabled{ color:#ccc; }
+.past{ color:#e57373; }
+
+
+.day:active {
+  transform: scale(0.92);
+}
+
+
+
+
+.today{
+  background: radial-gradient(circle, #ffb3c6, #ff5c8a);
+  color:white;
+  cursor:pointer;
+  font-size:22px;
+  box-shadow:0 0 0 6px rgba(255,92,138,.15);
+  animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(255,92,138,.5);}
+  70%{box-shadow:0 0 0 10px rgba(255,92,138,0);}
+  100%{box-shadow:0 0 0 0 rgba(255,92,138,0);}
+}
+
+
+
+.marked{
+  background:#ffe3ec;
+  box-shadow:0 0 0 4px rgba(255,92,138,.3);
+  font-size:22px;
+}
+
+
+
+.sad{ font-size:20px; }
+
+.modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  background:rgba(255,182,193,.6);
+  backdrop-filter:blur(6px);
+  align-items:center;
+  justify-content:center;
+  z-index:10;
+}
+
+
+.modal-box{
+  background:linear-gradient(180deg,#fff,#ffe6f0);
+  padding:30px 25px;
+  border-radius:24px;
+  max-width:320px;
+  box-shadow:0 15px 40px rgba(200,50,100,.25);
+  animation:pop .4s ease;
+}
+
+@keyframes pop{
+  from{transform:scale(.8); opacity:0;}
+  to{transform:scale(1); opacity:1;}
+}
+
+
+#modalText{
+  font-size:18px;
+  line-height:1.5;
+  margin-bottom:20px;
+}
+
+
+.modal-box button{
+  background:#ff5c8a;
+  border:none;
+  padding:10px 18px;
+  border-radius:20px;
+  color:white;
+  font-size:14px;
+  cursor:pointer;
+}
+
+
+
+
+
+@media (max-width:480px){
+  .calendar{
+    padding:12px;
+    gap:8px;
+  }
+
+  #monthTitle{
+    font-size:26px;
+  }
+}
+
+
+
+
+
+
+
+
+.history-title{
+  margin-top:50px;
+  font-size:16px;
+  opacity:.6;
+}
+
+
+.history-month{
+  background:#ffffff;
+  padding:16px;
+  border-radius:20px;
+  box-shadow:0 8px 20px rgba(200,50,100,.12);
+  max-width:320px;
+  width:100%;
+}
+
+
+
+.history-month h3{
+  font-size:14px;
+  margin-bottom:12px;
+  text-transform:capitalize;
+  text-align:center;
+  color:#c94b78;
+}
+
+
+
+.mini-calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  width:100%;
+}
+
+
+
+.mini-calendar .day{
+  aspect-ratio:1;
+  width:100%;
+  font-size:12px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+
+
+
+
+
+#history{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:32px;
+  width:100%;
+}
+
+
+
+
+
+
+
+#monthTitle{
+  font-size:32px;
+  margin-bottom:25px;
+  text-transform:capitalize;
+  color:#c2185b;
+  letter-spacing:1px;
+}
+
+
+
+
+
+
+
+
+
+.modal-box textarea {
+  box-sizing: border-box;
+}
+
+
+
+
+
+
+
+
+
+.reply-fade {
+  animation: replyFade .6s ease forwards;
+}
+
+@keyframes replyFade {
+  from {
+    opacity: 0;
+    transform: scale(.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+.month-cover{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin-bottom:24px;
+}
+
+.heart-photo{
+  width:240px;
+  aspect-ratio:1;
+  background:linear-gradient(135deg,#ffb3c6,#ff5c8a);
+  padding:10px;
+  border-radius:32px;
+  box-shadow:0 18px 40px rgba(200,50,100,.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.heart-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+
+  /* 💖 CORAZÓN REAL */
+  mask-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 29'>\
+<path d='M23.6,0c-3.4,0-6.4,2-7.6,4.9C14.8,2,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,16,20.6,16,20.6S32,17.8,32,8.4C32,3.8,28.2,0,23.6,0z'/>\
+</svg>");
+  mask-size:contain;
+  mask-repeat:no-repeat;
+  mask-position:center;
+
+  -webkit-mask-image: inherit;
+  -webkit-mask-size:contain;
+  -webkit-mask-repeat:no-repeat;
+  -webkit-mask-position:center;
+}
+
+
+.heart-frame img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:12px;
+}
+
+.month-quote{
+  margin-top:14px;
+  font-size:15px;
+  color:#c94b78;
+  max-width:320px;
+  text-align:center;
+  line-height:1.4;
+}
+
+
+
+
+
+.music-toggle{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#ffd6e7;
+  border:none;
+  border-radius:50%;
+  width:48px;
+  height:48px;
+  font-size:20px;
+  cursor:pointer;
+  box-shadow:0 6px 20px rgba(200,50,100,.3);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===== INTRO ===== */
+.intro{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(135deg,#fff0f6,#ffe3ec);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+  animation:fadeIn 1s ease;
+}
+
+.intro-card{
+  background:white;
+  padding:40px 30px;
+  border-radius:28px;
+  text-align:center;
+  max-width:320px;
+  box-shadow:0 25px 60px rgba(200,50,100,.25);
+  animation:float 3s ease-in-out infinite;
+}
+
+.intro-card h1{
+  color:#c2185b;
+  margin-bottom:12px;
+  font-size:26px;
+}
+
+.intro-card p{
+  font-size:15px;
+  color:#555;
+  line-height:1.5;
+  margin-bottom:30px;
+}
+
+.heart-btn{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  border:none;
+  font-size:34px;
+  background:#ff5c8a;
+  color:white;
+  cursor:pointer;
+  box-shadow:0 10px 25px rgba(255,92,138,.4);
+  animation:pulse 1.5s infinite;
+}
+
+.heart-btn:hover{
+  transform:scale(1.05);
+}
+
+.hint{
+  display:block;
+  margin-top:16px;
+  font-size:13px;
+  color:#999;
+}
+
+/* Animaciones */
+@keyframes pulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.1)}
+  100%{transform:scale(1)}
+}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+
+
+
+
+
+
+
+
+/* Evitar selección de texto en días del calendario */
+.day,
+.calendar,
+.mini-calendar,
+.weekdays {
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none;     /* Edge antiguo */
+  -moz-user-select: none;    /* Firefox */
+  -webkit-touch-callout: none; /* iOS */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.tooltip.pulse {
+  animation: gentlePulse 1.6s infinite;
+}
+
+@keyframes gentlePulse {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.03); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+
+
+
+
+
+
+</style>
+
+
+</head>
+<body>
+
+<div id="intro" class="intro">
+  <div class="intro-card">
+    <h1>Para ti 💖</h1>
+    <p>
+      Cada día a tu lado es especial.<br>
+      Toca el corazón y comencemos esta historia.
+    </p>
+
+    <button class="heart-btn" onclick="startExperience()">
+      ❤️
+    </button>
+
+    <span class="hint">Toca el corazón</span>
+  </div>
+</div>
+
+
+
+
+
+<div class="month-cover">
+  <div class="heart-photo">
+  <img id="monthImage" src="" alt="Nuestro mes">
+</div>
+  <p class="month-quote" id="monthQuote"></p>
+</div>
+
+<h1 id="monthTitle"></h1>
+<div class="calendar-wrapper">
+  <div class="calendar-box">
+    <div class="weekdays">
+      <div>DO</div>
+      <div>LU</div>
+      <div>MA</div>
+      <div>MI</div>
+      <div>JU</div>
+      <div>VI</div>
+      <div>SA</div>
+    </div>
+    <div class="calendar" id="calendar"></div>
+  </div>
+</div>
+
+
+<h2 class="history-title">Meses anteriores</h2>
+<div id="history"></div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <p id="modalText"></p>
+    <button onclick="openReply()">Responder 💌</button>
+    <br><br>
+    <button onclick="closeModal()">Cerrar</button>
+  </div>
+</div>
+
+
+
+<div class="modal" id="replyModal">
+  <div class="modal-box">
+    <h3 style="color:#c2185b;margin-bottom:10px">
+      Escríbeme algo bonito 💖
+    </h3>
+
+    <!-- TEXTAREA -->
+    <textarea id="replyText"
+      placeholder="Escribe aquí con amor… 💕"
+      style="
+        width:100%;
+        height:120px;
+        border-radius:16px;
+        border:1px solid #ffd6e7;
+        padding:12px;
+        font-family:Poppins;
+        resize:none;
+        box-sizing:border-box;
+      "></textarea>
+
+    <!-- MENSAJE ENVIADO (OCULTO) -->
+    <div id="replySuccess" style="display:none;text-align:center;">
+      <div style="font-size:42px;margin-bottom:10px;">💌</div>
+      <p style="font-size:16px;color:#c2185b;">
+        Mensaje enviado con amor
+      </p>
+      <span style="font-size:13px;color:#999;">
+        Gracias por escribir 💖
+      </span>
+    </div>
+
+    <br><br>
+
+    <!-- BOTONES -->
+    <button onclick="sendReply()">Enviar 💕</button>
+    <button onclick="closeReply()">Cancelar</button>
+  </div>
+</div>
+
+
+
+
+
+
+<audio id="loveMusic" loop>
+  <source src="https://raw.githubusercontent.com/asuarezmena/nanda-pocoyo/main/audio/Morat%20-%20Mi%20Nuevo%20Vicio.mp3" type="audio/mpeg">
+</audio>
+
+<button class="music-toggle" onclick="toggleMusic()">🔈</button>
+
+
+<div id="tooltip" class="tooltip">
+  <span class="tooltip-close" onclick="closeTooltip()">✕</span>
+  <div id="tooltipText"></div>
+</div>
+
+
+
+
+<script>
+
+const API_URL = "https://script.google.com/macros/s/AKfycbybPDdOWcpzwZvVEDxyEVmgbIju7hRTqSfyVdylDWM9uVqgobb_RGdxKwhNsYJBrYjKjQ/exec";
+
+const calendar = document.getElementById("calendar");
+const monthTitle = document.getElementById("monthTitle");
+const modal = document.getElementById("modal");
+const modalText = document.getElementById("modalText");
+
+
+
+const tooltip = document.getElementById("tooltip");
+
+
+
+let mensajes = {};
+let registro = {};
+
+
+
+
+
+const monthImages = {
+  0: {
+    img: "https://raw.githubusercontent.com/asuarezmena/nanda-pocoyo/main/img/enero.png",
+    quote: "Comenzar el año contigo es mi mejor decisión 💖"
+  },
+  1: {
+    img: "https://raw.githubusercontent.com/asuarezmena/nanda-pocoyo/main/img/febrero.png",
+    quote: "Febrero contigo siempre será especial 💕"
+  },
+  2: {
+    img: "https://images.unsplash.com/photo-1495567720989-cebdbdd97913",
+    quote: "Nuestro amor también florece 🌸"
+  }
+  // luego puedes completar hasta diciembre
+};
+
+
+
+
+
+
+
+
+
+
+
+const params = new URLSearchParams(window.location.search);
+const CLIENTE_ID = params.get("c");
+
+if(!CLIENTE_ID){
+  document.body.innerHTML = "<h2>Enlace inválido 💔</h2>";
+  throw new Error("Cliente no especificado");
+}
+
+
+
+
+
+
+
+
+
+
+
+function startExperience(){
+  music.volume = 0.25;
+
+  music.play()
+    .then(() => {
+      musicOn = true;
+    })
+    .catch(err => {
+      console.log("Audio bloqueado hasta interacción", err);
+    });
+
+  const intro = document.getElementById("intro");
+  intro.style.transition = "opacity .8s ease";
+  intro.style.opacity = "0";
+  intro.style.pointerEvents = "none";
+
+  setTimeout(() => {
+    intro.style.display = "none";
+  }, 800);
+
+  localStorage.setItem("introSeen","true");
+}
+
+
+
+
+
+
+
+const START_DAY = 7; // el calendario empieza desde el día 7
+
+
+
+
+
+
+const today = new Date();
+today.setHours(0,0,0,0);
+
+fetch(`${API_URL}?cliente=${CLIENTE_ID}`)
+.then(r => r.json())
+.then(data => {
+  mensajes = data.mensajes;
+  registro = data.registro;
+  const now = new Date();
+  renderCalendar(now);
+  renderHistory(now);
+});
+
+
+function renderCalendar(date){
+  calendar.innerHTML = "";
+
+  const y = date.getFullYear();
+  const m = date.getMonth();
+
+  const cover = monthImages[m];
+  if(cover){
+    document.getElementById("monthImage").src = cover.img;
+    document.getElementById("monthQuote").textContent = cover.quote;
+  }
+
+  monthTitle.textContent = date.toLocaleDateString("es", {
+    month: "long",
+    year: "numeric"
+  });
+
+  const first = new Date(y, m, 1);
+  const start = new Date(first);
+  start.setDate(start.getDate() - first.getDay());
+
+  // 🔹 AQUÍ SE DIBUJAN LOS DÍAS
+  for(let i = 0; i < 42; i++){
+  const d = new Date(start);
+  d.setDate(start.getDate() + i);
+
+  const iso = d.toISOString().split("T")[0];
+
+  const div = document.createElement("div");
+  div.className = "day";
+  div.textContent = d.getDate();
+
+  // 📌 DÍAS DE OTRO MES
+  if(d.getMonth() !== m){
+    div.classList.add("disabled");
+  }
+
+  // 🔴 DÍAS BLOQUEADOS ANTES DEL DÍA 7 (solo del mes actual)
+  else if(d.getMonth() === m && d.getDate() < START_DAY){
+    div.classList.add("past");
+  }
+
+  // ❤️ DÍAS YA MARCADOS
+  else if(registro[iso]){
+    div.textContent =
+      registro[iso].estado === "marcado" ? "❤️" : "😢";
+    div.classList.add("marked");
+
+    const msg = mensajes[iso];
+    if(msg){
+      addTooltipEvents(div, msg);
+    }
+  }
+
+  // 🔴 DÍAS PASADOS (DESPUÉS DEL 7)
+  else if(d < today){
+    div.classList.add("past");
+  }
+
+  // 💖 DÍA ACTUAL
+  else if(d.getTime() === today.getTime()){
+    div.classList.add("today");
+    div.onclick = () => markDay(iso, div);
+  }
+
+  calendar.appendChild(div);
+}
+
+  // 🌸 👉 JUSTO AQUÍ VA TU BLOQUE (FUERA DEL FOR)
+  setTimeout(() => {
+    const todayISO = today.toISOString().split("T")[0];
+
+    const todayCell = [...calendar.children].find(d =>
+      d.classList.contains("today") ||
+      (registro[todayISO] && d.textContent === "❤️")
+    );
+
+    if(!todayCell) return;
+
+    const seenKey = "guide_" + todayISO;
+    if(localStorage.getItem(seenKey)) return;
+
+    if(registro[todayISO]){
+      showGuideTooltip(
+        todayCell,
+        "💗 El mensaje de hoy ya fue leído. Mañana te espera otro 💫"
+      );
+    }else{
+      showGuideTooltip(
+        todayCell,
+        "💌 Tienes un mensajito de amor esperando… tócalo 💖"
+      );
+    }
+
+    localStorage.setItem(seenKey, "true");
+  }, 600);
+}
+
+
+
+
+function markDay(date, el){
+  modalText.textContent = mensajes[date] || "💖 Hoy no había mensaje, pero te amo";
+
+  modal.style.display = "flex";
+
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      cliente: CLIENTE_ID,
+      fecha: date,
+      estado: "marcado"
+    })
+
+  });
+
+  el.textContent = "❤️";
+  el.className = "day marked";
+
+  confettiHearts();
+  playMusic();
+}
+
+function closeModal(){
+  modal.style.display = "none";
+}
+
+
+
+
+function confettiHearts(){
+  for(let i=0;i<20;i++){
+    const heart = document.createElement("div");
+    heart.innerText = "❤️";
+    heart.style.position = "fixed";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.top = "-20px";
+    heart.style.fontSize = "24px";
+    heart.style.animation = "fall 2.5s linear";
+    document.body.appendChild(heart);
+
+    setTimeout(() => heart.remove(), 2500);
+  }
+}
+
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes fall {
+  to {
+    transform: translateY(110vh);
+    opacity: 0;
+  }
+}`;
+document.head.appendChild(style);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function getPastMonths(currentDate) {
+  const months = [];
+  const currentMonth = currentDate.getMonth();
+  const year = currentDate.getFullYear();
+
+  for (let m = 0; m < currentMonth; m++) {
+    months.push({ year, month: m });
+  }
+
+  return months;
+}
+
+
+
+
+
+
+
+
+function renderMiniCalendar(date) {
+  const container = document.createElement("div");
+  container.className = "history-month";
+
+  const title = document.createElement("h3");
+  title.textContent = date.toLocaleDateString("es", {
+    month: "long",
+    year: "numeric"
+  });
+
+  const grid = document.createElement("div");
+  grid.className = "mini-calendar";
+
+  const y = date.getFullYear();
+  const m = date.getMonth();
+
+  const first = new Date(y, m, 1);
+  const start = new Date(first);
+  start.setDate(start.getDate() - first.getDay());
+
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const iso = d.toISOString().split("T")[0];
+
+    const cell = document.createElement("div");
+    cell.className = "day";
+    cell.textContent = d.getDate();
+
+    if (d.getMonth() !== m) {
+      cell.classList.add("disabled");
+    } else if (registro[iso]) {
+      cell.textContent =
+        registro[iso].estado === "marcado" ? "❤️" : "😢";
+    } else {
+      cell.classList.add("disabled");
+    }
+
+    grid.appendChild(cell);
+  }
+
+  container.appendChild(title);
+  container.appendChild(grid);
+  return container;
+}
+
+
+
+
+function renderHistory(currentDate) {
+  const history = document.getElementById("history");
+  history.innerHTML = "";
+
+  const pastMonths = getPastMonths(currentDate);
+
+  pastMonths.forEach(month => {
+    history.appendChild(renderMiniCalendar(month));
+  });
+}
+
+
+
+
+
+
+
+
+
+
+const music = document.getElementById("loveMusic");
+let musicOn = false;
+
+function playMusic(){
+  if(!musicOn){
+    music.volume = 0.3;
+    music.play();
+    musicOn = true;
+  }
+}
+
+function toggleMusic(){
+  if(music.paused){
+    music.play();
+  }else{
+    music.pause();
+  }
+}
+
+
+
+
+
+
+
+
+
+function addTooltipEvents(el, text){
+  el.style.cursor = "pointer";
+
+  el.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const rect = el.getBoundingClientRect();
+
+    tooltip.classList.remove("show"); // reset seguro
+
+    document.getElementById("tooltipText").textContent = text;
+
+    tooltip.style.left =
+      rect.left + rect.width / 2 + "px";
+
+    tooltip.style.top =
+      rect.top - 16 + window.scrollY + "px";
+
+    requestAnimationFrame(() => {
+      tooltip.classList.add("show");
+    });
+  });
+}
+
+
+
+
+
+
+  
+
+function hideTooltip(){
+  tooltip.classList.remove("show");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+let currentDateSelected = null;
+
+// interceptamos la fecha cuando abre el mensaje
+const originalMarkDay = markDay;
+markDay = function(date, el){
+  currentDateSelected = date;
+  originalMarkDay(date, el);
+};
+
+function openReply(){
+  document.getElementById("replyModal").style.display = "flex";
+}
+
+function closeReply(){
+  document.getElementById("replyModal").style.display = "none";
+}
+
+function sendReply(){
+  const textArea = document.getElementById("replyText");
+  const text = textArea.value.trim();
+  if(!text) return;
+
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      cliente: CLIENTE_ID,
+      tipo: "respuesta",
+      fecha: currentDateSelected,
+      mensaje: text
+    })
+
+  })
+  .then(() => {
+    // ocultar textarea y botones
+    textArea.style.display = "none";
+    document.querySelector("#replyModal button").style.display = "none";
+
+    // mostrar mensaje pro
+    const success = document.getElementById("replySuccess");
+    success.style.display = "block";
+    success.classList.add("reply-fade");
+
+    // cerrar modal suavemente
+    setTimeout(() => {
+      closeReply();
+      closeModal();
+
+      // reset
+      textArea.value = "";
+      textArea.style.display = "";
+      success.style.display = "none";
+      success.classList.remove("reply-fade");
+
+      document.querySelector("#replyModal button").style.display = "";
+    }, 2500);
+  });
+}
+
+
+
+
+  
+
+function closeTooltip(){
+  tooltip.classList.remove("show");
+}
+
+
+
+  
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+function showGuideTooltip(targetEl, text){
+  const rect = targetEl.getBoundingClientRect();
+
+  tooltip.textContent = text;
+  tooltip.style.left = rect.left + rect.width / 2 + "px";
+  tooltip.style.top = rect.top - 10 + window.scrollY + "px";
+
+  tooltip.classList.add("show", "pulse");
+
+  setTimeout(() => {
+    tooltip.classList.remove("show", "pulse");
+  }, 5000);
+}
+
+
+</script>
+</body>
+</html>
