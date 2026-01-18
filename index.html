@@ -952,22 +952,22 @@ function markDay(date){
 
   modal.style.display = "flex";
 
-  fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      tipo: "marcado",          // 🔥 ESTO FALTABA
-      cliente: CLIENTE_ID,
-      fecha: date,
-      estado: "marcado"
-    })
-  }).then(() => {
-    if (!mensajes[date]) mensajes[date] = {};
-    mensajes[date].estado = "marcado";
-    renderCalendar(new Date());
-  });
+  const formData = new URLSearchParams();
+formData.append("tipo", "marcado");
+formData.append("cliente", CLIENTE_ID);
+formData.append("fecha", date);
+formData.append("estado", "marcado");
+
+fetch(API_URL, {
+  method: "POST",
+  body: formData
+})
+.then(() => {
+  if (!mensajes[date]) mensajes[date] = {};
+  mensajes[date].estado = "marcado";
+  renderCalendar(new Date());
+});
+
 
   confettiHearts();
   playMusic();
@@ -1162,24 +1162,24 @@ function closeReply(){
 function sendReply(){
   const textArea = document.getElementById("replyText");
   const text = textArea.value.trim();
-  if(!text) return;
+  if (!text) return;
+
+  const formData = new URLSearchParams();
+  formData.append("cliente", CLIENTE_ID);
+  formData.append("tipo", "respuesta");
+  formData.append("fecha", currentDateSelected);
+  formData.append("mensaje", text);
 
   fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify({
-      cliente: CLIENTE_ID,
-      tipo: "respuesta",
-      fecha: currentDateSelected,
-      mensaje: text
-    })
-
+    body: formData
   })
   .then(() => {
-    // ocultar textarea y botones
+    // ocultar textarea y botón
     textArea.style.display = "none";
     document.querySelector("#replyModal button").style.display = "none";
 
-    // mostrar mensaje pro
+    // mostrar mensaje de éxito
     const success = document.getElementById("replySuccess");
     success.style.display = "block";
     success.classList.add("reply-fade");
@@ -1189,17 +1189,18 @@ function sendReply(){
       closeReply();
       closeModal();
 
-      // reset
+      // reset visual
       textArea.value = "";
       textArea.style.display = "";
       success.style.display = "none";
       success.classList.remove("reply-fade");
-
       document.querySelector("#replyModal button").style.display = "";
     }, 2500);
+  })
+  .catch(err => {
+    console.error("Error al enviar respuesta:", err);
   });
 }
-
 
 
 
