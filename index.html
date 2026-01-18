@@ -672,7 +672,14 @@ body{
 
 <div class="modal" id="modal">
   <div class="modal-box">
+    <p id="modalState" style="font-size:14px;opacity:.7;margin-bottom:6px"></p>
     <p id="modalText"></p>
+    <div id="reactions" style="margin:12px 0">
+      <span onclick="react('❤️')">❤️</span>
+      <span onclick="react('😢')">😢</span>
+      <span onclick="react('😡')">😡</span>
+    </div>
+
     <button onclick="openReply()">Responder 💌</button>
     <br><br>
     <button onclick="closeModal()">Cerrar</button>
@@ -898,10 +905,13 @@ function renderCalendar(date){
   
     if (mensajes[iso]) {
       div.onclick = () => {
-        modalText.textContent = mensajes[iso].mensaje;
-        modal.style.display = "flex";
+        showGuideTooltip(
+          div,
+          "😢 Lo siento, perdiste el mensaje de esta fecha"
+        );
       };
     }
+
   }
 
 
@@ -953,6 +963,13 @@ function renderCalendar(date){
 
 
 function markDay(date){
+
+
+  document.getElementById("modalState").textContent =
+    mensajes[date]?.emoji
+      ? mensajes[date].emoji
+      : "";
+  
   modalText.textContent =
   mensajes[date]?.mensaje || "💖 Hoy no había mensaje, pero te amo";
 
@@ -1173,6 +1190,9 @@ markDay = function(date, el){
 };
 
 function openReply(){
+  if (mensajes[currentDateSelected]?.respondido) {
+    return;
+  }
   document.getElementById("replyModal").style.display = "flex";
 }
 
@@ -1236,6 +1256,17 @@ function closeTooltip(){
   
 
 
+function react(emoji){
+  if (currentDateSelected !== today.toISOString().split("T")[0]) return;
+
+  const formData = new URLSearchParams();
+  formData.append("tipo", "emocion");
+  formData.append("cliente", CLIENTE_ID);
+  formData.append("fecha", currentDateSelected);
+  formData.append("emocion", emoji);
+
+  fetch(API_URL, { method:"POST", body: formData });
+}
 
 
 
