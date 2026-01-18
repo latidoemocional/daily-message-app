@@ -899,17 +899,14 @@ function renderCalendar(date){
   }
 
   // ❤️ DÍAS YA MARCADOS
-// ❤️ DÍAS YA MARCADOS
-  else if (registro && registro[iso]) {
+  else if (mensajes[iso] && mensajes[iso].estado) {
   div.textContent =
-    registro[iso].estado === "marcado" ? "❤️" : "😢";
+    mensajes[iso].estado === "marcado" ? "❤️" : "😢";
   div.classList.add("marked");
 
-  // SOLO tooltip del mensaje
-  if (mensajes && mensajes[iso]) {
-    addTooltipEvents(div, mensajes[iso]);
+    addTooltipEvents(div, mensajes[iso].mensaje);
   }
-}
+
 
 
 
@@ -977,13 +974,15 @@ function markDay(date, el){
 
   fetch(API_URL, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       cliente: CLIENTE_ID,
+      tipo: "marcado",   // 🔥 ESTO FALTABA
       fecha: date,
       estado: "marcado"
     })
-
   });
+
 
   el.textContent = "❤️";
   el.className = "day marked";
