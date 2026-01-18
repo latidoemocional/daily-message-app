@@ -962,45 +962,52 @@ function renderCalendar(date){
 
 
 
-function markDay(date){
+function markDay(date) {
 
+  // Guardamos la fecha seleccionada
+  currentDateSelected = date;
 
-  document.getElementById("modalState").textContent =
-    mensajes[date]?.emoji
-      ? mensajes[date].emoji
-      : "";
+  // Aseguramos que exista el objeto
+  const data = mensajes[date] || {};
 
-  document.getElementById("reactions").style.display =
-  currentDateSelected === today.toISOString().split("T")[0]
-    ? "block"
-    : "none";
-  
+  // 👉 MENSAJE
   modalText.textContent =
-  mensajes[date]?.mensaje || "💖 Hoy no había mensaje, pero te amo";
+    data.mensaje || "💖 Hoy no había mensaje, pero te amo";
 
+  // 👉 EMOJI / ESTADO DEL MENSAJE
+  document.getElementById("modalState").textContent =
+    data.emoji ? data.emoji : "";
 
+  // 👉 MOSTRAR REACCIONES SOLO SI ES HOY
+  document.getElementById("reactions").style.display =
+    date === today.toISOString().split("T")[0]
+      ? "block"
+      : "none";
+
+  // 👉 MOSTRAR MODAL
   modal.style.display = "flex";
 
+  // 👉 MARCAR COMO LEÍDO EN SHEETS
   const formData = new URLSearchParams();
-formData.append("tipo", "marcado");
-formData.append("cliente", CLIENTE_ID);
-formData.append("fecha", date);
-formData.append("estado", "marcado");
+  formData.append("tipo", "marcado");
+  formData.append("cliente", CLIENTE_ID);
+  formData.append("fecha", date);
+  formData.append("estado", "marcado");
 
-fetch(API_URL, {
-  method: "POST",
-  body: formData
-})
-.then(() => {
-  if (!mensajes[date]) mensajes[date] = {};
-  mensajes[date].estado = "marcado";
-  renderCalendar(new Date());
-});
+  fetch(API_URL, {
+    method: "POST",
+    body: formData
+  }).then(() => {
+    if (!mensajes[date]) mensajes[date] = {};
+    mensajes[date].estado = "marcado";
+    renderCalendar(new Date());
+  });
 
-
+  // 👉 EFECTOS
   confettiHearts();
   playMusic();
 }
+
 
 function closeModal(){
   modal.style.display = "none";
