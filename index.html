@@ -909,21 +909,21 @@ function renderCalendar(date){
 
   // 🌸 👉 JUSTO AQUÍ VA TU BLOQUE (FUERA DEL FOR)
   setTimeout(() => {
-  if (!registro) return; // 🔒 protección clave
+  if (!mensajes) return;
 
-    const todayISO = today.toISOString().split("T")[0];
+  const todayISO = today.toISOString().split("T")[0];
 
-    const todayCell = [...calendar.children].find(d =>
-      d.classList.contains("today") ||
-      (registro[todayISO] && d.textContent === "❤️")
-   );
+  const todayCell = [...calendar.children].find(d =>
+    d.classList.contains("today") ||
+    (mensajes[todayISO] && d.textContent === "❤️")
+  );
 
   if (!todayCell) return;
 
-    const seenKey = "guide_" + todayISO;
-    if (localStorage.getItem(seenKey)) return;
+  const seenKey = "guide_" + todayISO;
+  if (localStorage.getItem(seenKey)) return;
 
-    if (registro[todayISO]) {
+  if (mensajes[todayISO]) {
     showGuideTooltip(
       todayCell,
       "💗 El mensaje de hoy ya fue leído. Mañana te espera otro 💫"
@@ -937,6 +937,7 @@ function renderCalendar(date){
 
   localStorage.setItem(seenKey, "true");
 }, 600);
+
 
 }
 
