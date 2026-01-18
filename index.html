@@ -968,7 +968,9 @@ function renderCalendar(date){
 
 
 function markDay(date, el){
-  modalText.textContent = mensajes[date] || "💖 Hoy no había mensaje, pero te amo";
+  modalText.textContent =
+  mensajes[date]?.mensaje || "💖 Hoy no había mensaje, pero te amo";
+
 
   modal.style.display = "flex";
 
