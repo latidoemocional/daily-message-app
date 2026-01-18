@@ -887,9 +887,15 @@ function renderCalendar(date){
 
 
   // 🔴 DÍAS PASADOS (DESPUÉS DEL 7)
+  // 😢 DÍAS PASADOS NO MARCADOS
   else if(d < today){
-  div.classList.add("past");
-
+    div.classList.add("past");
+  
+    // si había mensaje pero no se marcó
+    if (mensajes[iso] && mensajes[iso].estado !== "marcado") {
+      div.textContent = "😢";
+    }
+  
     if (mensajes[iso]) {
       div.onclick = () => {
         modalText.textContent = mensajes[iso].mensaje;
@@ -897,6 +903,7 @@ function renderCalendar(date){
       };
     }
   }
+
 
   // 💖 DÍA ACTUAL
   else if(d.getTime() === today.getTime()){
@@ -1112,13 +1119,27 @@ function toggleMusic(){
 // =======================
 // TOOLTIP
 // =======================
-function addTooltipEvents(el, text) {
+function addTooltipEvents(el, text){
+  el.style.cursor = "pointer";
+
   el.addEventListener("click", e => {
     e.stopPropagation();
-    document.getElementById("tooltipText").textContent = text;
+
+    const rect = el.getBoundingClientRect();
+
+    const tooltipText = document.getElementById("tooltipText");
+    tooltipText.textContent = text;
+
+    tooltip.style.left =
+      rect.left + rect.width / 2 + "px";
+
+    tooltip.style.top =
+      rect.top - 12 + window.scrollY + "px";
+
     tooltip.classList.add("show");
   });
 }
+
 
 
 
