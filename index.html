@@ -748,19 +748,26 @@ const calendar = document.getElementById("calendar");
 const monthTitle = document.getElementById("monthTitle");
 const modal = document.getElementById("modal");
 const modalText = document.getElementById("modalText");
-
-
-
 const tooltip = document.getElementById("tooltip");
 
-
-
 let mensajes = {};
-let registro = {};
+
+
+const params = new URLSearchParams(window.location.search);
+const CLIENTE_ID = params.get("c");
+
+if (!CLIENTE_ID) {
+  document.body.innerHTML = "<h2>Enlace inválido 💔</h2>";
+  throw new Error("Cliente no especificado");
+}
 
 
 
+const START_DAY = 7; // el calendario empieza desde el día 7
+const today = new Date();
+today.setHours(0,0,0,0);
 
+  
 
 const monthImages = {
   0: {
@@ -777,28 +784,6 @@ const monthImages = {
   }
   // luego puedes completar hasta diciembre
 };
-
-
-
-
-
-
-
-
-
-
-
-const params = new URLSearchParams(window.location.search);
-const CLIENTE_ID = params.get("c");
-
-if(!CLIENTE_ID){
-  document.body.innerHTML = "<h2>Enlace inválido 💔</h2>";
-  throw new Error("Cliente no especificado");
-}
-
-
-
-
 
 
 
@@ -831,30 +816,23 @@ function startExperience(){
 
 
 
+// =======================
+// CARGA INICIAL
+// =======================
+function loadData() {
+  fetch(`${API_URL}?cliente=${CLIENTE_ID}`)
+    .then(r => r.json())
+    .then(data => {
+      mensajes = data.mensajes || {};
+      renderCalendar(new Date());
+      renderHistory(new Date());
+    });
+}
+
+loadData();
 
 
-
-
-const START_DAY = 7; // el calendario empieza desde el día 7
-
-
-
-
-
-
-const today = new Date();
-today.setHours(0,0,0,0);
-
-fetch(`${API_URL}?cliente=${CLIENTE_ID}`)
-.then(r => r.json())
-.then(data => {
-  mensajes = data.mensajes;
-  registro = data.registro;
-  const now = new Date();
-  renderCalendar(now);
-  renderHistory(now);
-});
-
+  
 
 function renderCalendar(date){
   calendar.innerHTML = "";
@@ -899,12 +877,10 @@ function renderCalendar(date){
   }
 
   // ❤️ DÍAS YA MARCADOS
-  else if (mensajes[iso] && mensajes[iso].estado) {
-  div.textContent =
-    mensajes[iso].estado === "marcado" ? "❤️" : "😢";
-  div.classList.add("marked");
-
-    addTooltipEvents(div, mensajes[iso].mensaje);
+  else if (mensajes[iso]?.estado === "marcado") {
+      div.textContent = "❤️";
+      div.classList.add("marked");
+      addTooltipEvents(div, mensajes[iso].mensaje);
   }
 
 
@@ -925,7 +901,7 @@ function renderCalendar(date){
   // 💖 DÍA ACTUAL
   else if(d.getTime() === today.getTime()){
     div.classList.add("today");
-    div.onclick = () => markDay(iso, div);
+    div.onclick = () => markDay(iso);
   }
 
   calendar.appendChild(div);
@@ -967,7 +943,7 @@ function renderCalendar(date){
 
 
 
-function markDay(date, el){
+function markDay(date){
   modalText.textContent =
   mensajes[date]?.mensaje || "💖 Hoy no había mensaje, pero te amo";
 
@@ -985,12 +961,11 @@ function markDay(date, el){
       fecha: date,
       estado: "marcado"
     })
+  }).then(() => {
+    if (!mensajes[date]) mensajes[date] = {};
+    mensajes[date].estado = "marcado";
+    renderCalendar(new Date());
   });
-
-
-
-  el.textContent = "❤️";
-  el.className = "day marked";
 
   confettiHearts();
   playMusic();
@@ -1037,39 +1012,16 @@ document.head.appendChild(style);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// =======================
+// HISTORIAL
+// =======================
 function getPastMonths(currentDate) {
   const months = [];
-  const currentMonth = currentDate.getMonth();
-  const year = currentDate.getFullYear();
-
-  for (let m = 0; m < currentMonth; m++) {
-    months.push({ year, month: m });
+  for (let m = 0; m < currentDate.getMonth(); m++) {
+    months.push({ year: currentDate.getFullYear(), month: m });
   }
-
   return months;
 }
-
-
-
-
-
-
-
 
 function renderMiniCalendar(date) {
   const container = document.createElement("div");
@@ -1086,7 +1038,6 @@ function renderMiniCalendar(date) {
 
   const y = date.getFullYear();
   const m = date.getMonth();
-
   const first = new Date(y, m, 1);
   const start = new Date(first);
   start.setDate(start.getDate() - first.getDay());
@@ -1100,14 +1051,9 @@ function renderMiniCalendar(date) {
     cell.className = "day";
     cell.textContent = d.getDate();
 
-    if (d.getMonth() !== m) {
-      cell.classList.add("disabled");
-    } else if (registro[iso]) {
-      cell.textContent =
-        registro[iso].estado === "marcado" ? "❤️" : "😢";
-    } else {
-      cell.classList.add("disabled");
-    }
+    if (d.getMonth() !== m) cell.classList.add("disabled");
+    else if (mensajes[iso]?.estado === "marcado") cell.textContent = "❤️";
+    else cell.classList.add("disabled");
 
     grid.appendChild(cell);
   }
@@ -1117,17 +1063,11 @@ function renderMiniCalendar(date) {
   return container;
 }
 
-
-
-
 function renderHistory(currentDate) {
   const history = document.getElementById("history");
   history.innerHTML = "";
-
-  const pastMonths = getPastMonths(currentDate);
-
-  pastMonths.forEach(month => {
-    history.appendChild(renderMiniCalendar(month));
+  getPastMonths(currentDate).forEach(m => {
+    history.appendChild(renderMiniCalendar(new Date(m.year, m.month)));
   });
 }
 
@@ -1167,28 +1107,14 @@ function toggleMusic(){
 
 
 
-function addTooltipEvents(el, text){
-  el.style.cursor = "pointer";
-
-  el.addEventListener("pointerdown", e => {
-    e.preventDefault();
+// =======================
+// TOOLTIP
+// =======================
+function addTooltipEvents(el, text) {
+  el.addEventListener("click", e => {
     e.stopPropagation();
-
-    const rect = el.getBoundingClientRect();
-
-    tooltip.classList.remove("show"); // reset seguro
-
     document.getElementById("tooltipText").textContent = text;
-
-    tooltip.style.left =
-      rect.left + rect.width / 2 + "px";
-
-    tooltip.style.top =
-      rect.top - 16 + window.scrollY + "px";
-
-    requestAnimationFrame(() => {
-      tooltip.classList.add("show");
-    });
+    tooltip.classList.add("show");
   });
 }
 
