@@ -969,6 +969,11 @@ function markDay(date){
     mensajes[date]?.emoji
       ? mensajes[date].emoji
       : "";
+
+  document.getElementById("reactions").style.display =
+  currentDateSelected === today.toISOString().split("T")[0]
+    ? "block"
+    : "none";
   
   modalText.textContent =
   mensajes[date]?.mensaje || "💖 Hoy no había mensaje, pero te amo";
