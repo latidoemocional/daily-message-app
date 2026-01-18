@@ -901,20 +901,28 @@ function renderCalendar(date){
   // ❤️ DÍAS YA MARCADOS
 // ❤️ DÍAS YA MARCADOS
   else if (registro && registro[iso]) {
-    div.textContent =
+  div.textContent =
     registro[iso].estado === "marcado" ? "❤️" : "😢";
-    div.classList.add("marked");
+  div.classList.add("marked");
 
-  const msg = mensajes?.[iso];
-  if (msg) {
-      addTooltipEvents(div, msg);
-    }
+  // SOLO tooltip del mensaje
+  if (mensajes && mensajes[iso]) {
+    addTooltipEvents(div, mensajes[iso]);
   }
+}
+
 
 
   // 🔴 DÍAS PASADOS (DESPUÉS DEL 7)
   else if(d < today){
-    div.classList.add("past");
+  div.classList.add("past");
+
+    if (mensajes[iso]) {
+      div.onclick = () => {
+        modalText.textContent = mensajes[iso].mensaje;
+        modal.style.display = "flex";
+      };
+    }
   }
 
   // 💖 DÍA ACTUAL
