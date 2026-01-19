@@ -110,6 +110,17 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzEETRXPcemtlrfXEz7sdOk
 const params = new URLSearchParams(window.location.search);
 const CLIENTE_ID = params.get("token");
 
+
+const token = localStorage.getItem("latidos_token");
+const clienteId = localStorage.getItem("latidos_cliente");
+
+  
+if(!token || !clienteId){
+  alert("Acceso no autorizado");
+  window.location.href = "login.html";
+}
+
+  
 if (!CLIENTE_ID) {
   document.body.innerHTML = "<h2>Acceso no autorizado</h2>";
   throw new Error("Token faltante");
@@ -154,13 +165,20 @@ document.querySelector("button").addEventListener("click", () => {
   formData.append("emoji", emoji);
 
   fetch(API_URL, {
-    method: "POST",
-    body: formData
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer " + token
+  },
+  body: JSON.stringify({
+    action: "getDashboardData",
+    clienteId: clienteId
   })
-  .then(() => {
-    alert("Mensaje guardado 💖");
-  });
+})
+.then(r => r.json())
+.then(res => {
+  console.log(res);
 });
+
   
 
 
