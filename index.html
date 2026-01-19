@@ -989,59 +989,63 @@ function renderCalendar(date){
 
 function markDay(date) {
 
-  // Guardamos la fecha seleccionada
   currentDateSelected = date;
-
-  // Aseguramos que exista el objeto
   const data = mensajes[date] || {};
+  const isToday = date === today.toISOString().split("T")[0];
 
-
-  // ❌ SI EL DÍA NO ESTÁ MARCADO → SOLO TOOLTIP
-  if (data.estado !== "marcado") {
-    showLostMessageTooltip(date); // 👈 tu tooltip actual
-    return; // 🔥 ESTO EVITA EL ERROR
+  // ❌ SOLO BLOQUEAR SI NO ES HOY Y NO ESTÁ MARCADO
+  if (!isToday && data.estado !== "marcado") {
+    showLostMessageTooltip(date);
+    return;
   }
 
   // 👉 ESTADO DEL ESCRITOR
-  document.getElementById("writerState").textContent =
-    data.emoji ? `Estado: ${data.emoji}` : "";
+  const writerState = document.getElementById("writerState");
+  if (writerState) {
+    writerState.textContent =
+      data.emoji ? `Estado: ${data.emoji}` : "";
+  }
 
   // 👉 MENSAJE
   modalText.textContent =
     data.mensaje || "💖 Hoy no había mensaje, pero te amo";
 
-
-  // 👉 MOSTRAR REACCIONES SOLO SI ES HOY
-  const isToday = date === today.toISOString().split("T")[0];
-  document.getElementById("reactions").style.display =
-    isToday ? "flex" : "none";
+  // 👉 MOSTRAR REACCIONES SOLO HOY
+  const reactions = document.getElementById("reactions");
+  if (reactions) {
+    reactions.style.display = isToday ? "flex" : "none";
+  }
 
   // 👉 MARCAR EMOJI SELECCIONADO (si existe)
-  marcarEmojiSeleccionado(data.emocion);
+  if (typeof marcarEmojiSeleccionado === "function") {
+    marcarEmojiSeleccionado(data.emocion);
+  }
 
   // 👉 MOSTRAR MODAL
   modal.style.display = "flex";
 
-  // 👉 MARCAR COMO LEÍDO EN SHEETS
-  const formData = new URLSearchParams();
-  formData.append("tipo", "marcado");
-  formData.append("cliente", CLIENTE_ID);
-  formData.append("fecha", date);
-  formData.append("estado", "marcado");
+  // 👉 MARCAR COMO LEÍDO SOLO SI ES HOY
+  if (isToday && data.estado !== "marcado") {
+    const formData = new URLSearchParams();
+    formData.append("tipo", "marcado");
+    formData.append("cliente", CLIENTE_ID);
+    formData.append("fecha", date);
+    formData.append("estado", "marcado");
 
-  fetch(API_URL, {
-    method: "POST",
-    body: formData
-  }).then(() => {
-    if (!mensajes[date]) mensajes[date] = {};
-    mensajes[date].estado = "marcado";
-    renderCalendar(new Date());
-  });
+    fetch(API_URL, {
+      method: "POST",
+      body: formData
+    }).then(() => {
+      if (!mensajes[date]) mensajes[date] = {};
+      mensajes[date].estado = "marcado";
+      renderCalendar(new Date());
+    });
 
-  // 👉 EFECTOS
-  confettiHearts();
-  playMusic();
+    confettiHearts();
+    playMusic();
+  }
 }
+
 
 
 function closeModal(){
