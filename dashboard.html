@@ -108,7 +108,6 @@ button:hover{
 // ==============================
 // CONFIG
 // ==============================
-  
 const PLANTILLA_API_URL =
   "https://script.google.com/macros/s/AKfycbxtY9RJrtpEjVlmSimT4m66P4sTLtaEXwqKGv1x3zLArPtFsh6QdgIq3cqgK2kNwC_y/exec";
 
@@ -129,24 +128,26 @@ if (!token || !clienteId) {
 let mensajes = {};
 
 // ==============================
-// CARGAR MENSAJES EXISTENTES
+// CARGAR MENSAJES (POST, NO GET)
 // ==============================
-
-
 function loadDashboard() {
-  fetch(`${PLANTILLA_API_URL}?cliente=${clienteId}`, {
-     method: "GET"
+  const formData = new URLSearchParams();
+  formData.append("tipo", "dashboard");
+  formData.append("cliente", clienteId);
+
+  fetch(PLANTILLA_API_URL, {
+    method: "POST",
+    body: formData
   })
   .then(r => r.json())
-   .then(data => {
+  .then(data => {
     mensajes = data.mensajes || {};
     console.log("Mensajes cargados:", mensajes);
-   })
+  })
   .catch(err => {
-     console.error("Error cargando mensajes", err);
-   });
+    console.error("Error cargando mensajes", err);
+  });
 }
-
 
 loadDashboard();
 
@@ -177,20 +178,21 @@ document
       method: "POST",
       body: formData
     })
-      .then(r => r.json())
-      .then(res => {
-        if (res.ok) {
-          alert("Mensaje guardado ❤️");
-          loadDashboard(); // refrescar datos
-        } else {
-          alert("Error al guardar");
-        }
-      })
-      .catch(err => {
-        console.error("Error guardando mensaje", err);
-      });
+    .then(r => r.json())
+    .then(res => {
+      if (res.ok) {
+        alert("Mensaje guardado ❤️");
+        loadDashboard();
+      } else {
+        alert("Error al guardar");
+      }
+    })
+    .catch(err => {
+      console.error("Error guardando mensaje", err);
+    });
   });
 </script>
+
 
 
 
