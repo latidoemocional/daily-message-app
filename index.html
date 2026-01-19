@@ -908,35 +908,31 @@ function renderCalendar(date){
     div.classList.add("past");
   }
 
-  // ❤️ DÍAS YA MARCADOS
-  else if (mensajes[iso]?.estado === "marcado") {
+  // 💖 DÍA ACTUAL
+  if(d.getTime() === today.getTime()){
+      div.classList.add("today");
+      // siempre abrir modal, aunque ya esté marcado
+      div.onclick = () => markDay(iso);
+  }
+  // 🔴 DÍAS PASADOS
+  else if(d < today){
+      div.classList.add("past");
+  
+      if(mensajes[iso]?.estado === "marcado"){
+          div.textContent = "❤️";
+          div.classList.add("marked");
+          addTooltipEvents(div, mensajes[iso].mensaje);
+      }
+      else if(mensajes[iso]){
+          div.textContent = "😢";
+          div.onclick = () => showGuideTooltip(div, "😢 Lo siento, perdiste el mensaje de esta fecha");
+      }
+  }
+  // ❤️ DÍAS FUTUROS O SIN MARCAR
+  else if(mensajes[iso]?.estado === "marcado"){
       div.textContent = "❤️";
       div.classList.add("marked");
       addTooltipEvents(div, mensajes[iso].mensaje);
-  }
-
-
-
-
-  // 🔴 DÍAS PASADOS (DESPUÉS DEL 7)
-  // 😢 DÍAS PASADOS NO MARCADOS
-  else if(d < today){
-    div.classList.add("past");
-  
-    // si había mensaje pero no se marcó
-    if (mensajes[iso] && mensajes[iso].estado !== "marcado") {
-      div.textContent = "😢";
-    }
-  
-    if (mensajes[iso]) {
-      div.onclick = () => {
-        showGuideTooltip(
-          div,
-          "😢 Lo siento, perdiste el mensaje de esta fecha"
-        );
-      };
-    }
-
   }
 
 
