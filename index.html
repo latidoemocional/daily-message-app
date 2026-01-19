@@ -974,9 +974,16 @@ function markDay(date) {
   modalText.textContent =
     data.mensaje || "💖 Hoy no había mensaje, pero te amo";
 
-  // 👉 EMOJI / ESTADO DEL MENSAJE
-  document.getElementById("modalState").textContent =
-    data.emoji ? data.emoji : "";
+  // 👉 EMOJI DEL MENSAJE (escritor)
+  let stateText = data.emoji ? data.emoji : "";
+  
+  // 👉 REACCIÓN DEL LECTOR (si existe)
+  if (mensajes[date]?.emocion) {
+    stateText = "Reacción: " + mensajes[date].emocion;
+  }
+  
+  document.getElementById("modalState").textContent = stateText;
+
 
   // 👉 MOSTRAR REACCIONES SOLO SI ES HOY
   document.getElementById("reactions").style.display =
@@ -1268,8 +1275,17 @@ function closeTooltip(){
   
 
 
-function react(emoji){
-  if (currentDateSelected !== today.toISOString().split("T")[0]) return;
+function react(emoji) {
+  const todayISO = today.toISOString().split("T")[0];
+
+  // ❌ bloquear si no es hoy
+  if (currentDateSelected !== todayISO) {
+    alert("Solo puedes reaccionar al mensaje de hoy 💖");
+    return;
+  }
+
+  // 👉 feedback visual inmediato
+  document.getElementById("modalState").textContent = "Reacción: " + emoji;
 
   const formData = new URLSearchParams();
   formData.append("tipo", "emocion");
@@ -1277,8 +1293,18 @@ function react(emoji){
   formData.append("fecha", currentDateSelected);
   formData.append("emocion", emoji);
 
-  fetch(API_URL, { method:"POST", body: formData });
+  fetch(API_URL, {
+    method: "POST",
+    body: formData
+  })
+  .then(() => {
+    // guardamos localmente para que no se pierda al cerrar
+    if (!mensajes[currentDateSelected]) mensajes[currentDateSelected] = {};
+    mensajes[currentDateSelected].emocion = emoji;
+  })
+  .catch(err => console.error("Error reacción:", err));
 }
+
 
 
 
