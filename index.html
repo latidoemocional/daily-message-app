@@ -1195,21 +1195,20 @@ function addTooltipEvents(el, text){
 
     if (!tooltip) return;
 
+    const tooltipText = document.getElementById("tooltipText");
+    if (!tooltipText) return;
+
     const rect = el.getBoundingClientRect();
 
-    // Solo actualizar el contenido interno
-    const tooltipText = document.getElementById("tooltipText");
     tooltipText.textContent = text || "";
 
-    tooltip.style.left =
-      rect.left + rect.width / 2 + "px";
-
-    tooltip.style.top =
-      rect.top - 12 + window.scrollY + "px";
+    tooltip.style.left = rect.left + rect.width / 2 + "px";
+    tooltip.style.top = rect.top - 12 + window.scrollY + "px";
 
     tooltip.classList.add("show");
   });
 }
+
 
 
 
@@ -1425,19 +1424,24 @@ document.querySelectorAll(".reaction").forEach(el => {
 function showGuideTooltip(targetEl, text){
   if (!tooltip || !targetEl) return;
 
+  const tooltipText = document.getElementById("tooltipText");
+  if (!tooltipText) return; // ✅ chequeo de seguridad
+
   const rect = targetEl.getBoundingClientRect();
 
-  tooltip.textContent = text || "";
+  tooltipText.textContent = text || "";
 
   tooltip.style.left = rect.left + rect.width / 2 + "px";
   tooltip.style.top = rect.top - 10 + window.scrollY + "px";
 
   tooltip.classList.add("show", "pulse");
 
+  // tooltip automático se cierra
   setTimeout(() => {
-    tooltip.classList.remove("show", "pulse");
+    if (tooltip) tooltip.classList.remove("show", "pulse");
   }, 5000);
 }
+
 
 
 
