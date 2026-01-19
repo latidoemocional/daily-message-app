@@ -1027,7 +1027,7 @@ const replyButton = document.querySelector("#replyModal button");
 const replyText = document.getElementById("replyText");
 const replySuccess = document.getElementById("replySuccess");
 
-if(mensajes[iso]?.respondido){
+if(mensajes[date]?.respondido){
   // si ya respondió → ocultar botón y textarea
   if(replyButton) replyButton.style.display = "none";
   if(replyText) replyText.style.display = "none";
@@ -1038,6 +1038,7 @@ if(mensajes[iso]?.respondido){
   if(replyText) replyText.style.display = "";
   if(replySuccess) replySuccess.style.display = "none";
 }
+
 
 
 
