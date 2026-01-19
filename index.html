@@ -24,6 +24,28 @@ body{
 
 
 
+.reactions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.reaction {
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.reaction.selected {
+  transform: scale(1.6);
+}
+
+
+  
+
+
+
+
 
 .tooltip {
   position: absolute;
@@ -672,12 +694,15 @@ body{
 
 <div class="modal" id="modal">
   <div class="modal-box">
-    <p id="modalState" style="font-size:14px;opacity:.7;margin-bottom:6px">Estado: </p>
+    <div id="writerState" class="writer-state"></div>
+
     <p id="modalText"></p>
-    <div id="reactions" style="margin:12px 0">
-      <span onclick="react('❤️')">❤️</span>
-      <span onclick="react('😢')">😢</span>
-      <span onclick="react('😡')">😡</span>
+    
+    <div id="reactions" class="reactions">
+      <span class="me-label">Me:</span>
+      <span class="reaction" data-emoji="❤️">❤️</span>
+      <span class="reaction" data-emoji="😢">😢</span>
+      <span class="reaction" data-emoji="😡">😡</span>
     </div>
 
     <button onclick="openReply()">Responder 💌</button>
@@ -970,26 +995,22 @@ function markDay(date) {
   // Aseguramos que exista el objeto
   const data = mensajes[date] || {};
 
+  // 👉 ESTADO DEL ESCRITOR
+  document.getElementById("writerState").textContent =
+    data.emoji ? `Estado: ${data.emoji}` : "";
+
   // 👉 MENSAJE
   modalText.textContent =
     data.mensaje || "💖 Hoy no había mensaje, pero te amo";
 
-  // 👉 EMOJI DEL MENSAJE (escritor)
-  let stateText = data.emoji ? data.emoji : "";
-  
-  // 👉 REACCIÓN DEL LECTOR (si existe)
-  if (mensajes[date]?.emocion) {
-    stateText = "Reacción: " + mensajes[date].emocion;
-  }
-  
-  document.getElementById("modalState").textContent = stateText;
-
 
   // 👉 MOSTRAR REACCIONES SOLO SI ES HOY
+  const isToday = date === today.toISOString().split("T")[0];
   document.getElementById("reactions").style.display =
-    date === today.toISOString().split("T")[0]
-      ? "block"
-      : "none";
+    isToday ? "flex" : "none";
+
+  // 👉 MARCAR EMOJI SELECCIONADO (si existe)
+  marcarEmojiSeleccionado(data.emocion);
 
   // 👉 MOSTRAR MODAL
   modal.style.display = "flex";
@@ -1310,6 +1331,64 @@ function react(emoji) {
 
 
 
+
+
+  function marcarEmojiSeleccionado(emocion) {
+  document.querySelectorAll(".reaction").forEach(el => {
+    el.classList.toggle(
+      "selected",
+      el.dataset.emoji === emocion
+    );
+  });
+}
+
+
+
+
+
+
+
+document.querySelectorAll(".reaction").forEach(el => {
+  el.addEventListener("click", () => {
+    if (currentDateSelected !== today.toISOString().split("T")[0]) return;
+
+    const emoji = el.dataset.emoji;
+
+    // UI inmediata
+    marcarEmojiSeleccionado(emoji);
+
+    // Guardar en Sheets
+    guardarReaccion(currentDateSelected, emoji);
+  });
+});
+
+
+
+
+
+
+
+
+  function guardarReaccion(fecha, emoji) {
+  const formData = new URLSearchParams();
+  formData.append("tipo", "emocion");
+  formData.append("cliente", CLIENTE_ID);
+  formData.append("fecha", fecha);
+  formData.append("emocion", emoji);
+
+  fetch(API_URL, {
+    method: "POST",
+    body: formData
+  }).then(() => {
+    if (!mensajes[fecha]) mensajes[fecha] = {};
+    mensajes[fecha].emocion = emoji;
+  });
+}
+
+
+
+
+  
 
 
   
