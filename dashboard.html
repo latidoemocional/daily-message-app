@@ -131,17 +131,22 @@ let mensajes = {};
 // ==============================
 // CARGAR MENSAJES EXISTENTES
 // ==============================
+
+
 function loadDashboard() {
-  fetch(`${PLANTILLA_API_URL}?cliente=${clienteId}`)
-    .then(r => r.json())
-    .then(data => {
-      mensajes = data.mensajes || {};
-      console.log("Mensajes cargados:", mensajes);
-    })
-    .catch(err => {
-      console.error("Error cargando mensajes", err);
-    });
+  fetch(`${PLANTILLA_API_URL}?cliente=${clienteId}`, {
+     method: "GET"
+  })
+  .then(r => r.json())
+   .then(data => {
+    mensajes = data.mensajes || {};
+    console.log("Mensajes cargados:", mensajes);
+   })
+  .catch(err => {
+     console.error("Error cargando mensajes", err);
+   });
 }
+
 
 loadDashboard();
 
