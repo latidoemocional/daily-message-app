@@ -107,8 +107,7 @@ button:hover{
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycby689QTqrcRFD7C-tXUbIelrO11zP-eC5MSUjI3JKhqZFqZeo55Kbt9qS78386e0PajmQ/exec";
 
-const params = new URLSearchParams(window.location.search);
-const CLIENTE_ID = params.get("token");
+
 
 
 const token = localStorage.getItem("latidos_token");
@@ -121,13 +120,6 @@ if(!token || !clienteId){
 }
 
   
-if (!CLIENTE_ID) {
-  document.body.innerHTML = "<h2>Acceso no autorizado</h2>";
-  throw new Error("Token faltante");
-}
-
-
-
 
 
 
@@ -146,7 +138,6 @@ loadDashboard();
 
 
 
-
 document.querySelector("button").addEventListener("click", () => {
   const fecha = document.getElementById("fecha").value;
   const mensaje = document.getElementById("mensaje").value;
@@ -159,25 +150,24 @@ document.querySelector("button").addEventListener("click", () => {
 
   const formData = new URLSearchParams();
   formData.append("tipo", "guardarMensaje");
-  formData.append("cliente", CLIENTE_ID);
+  formData.append("cliente", clienteId); // 👈 clienteId real
   formData.append("fecha", fecha);
   formData.append("mensaje", mensaje);
   formData.append("emoji", emoji);
 
-  fetch(API_URL, {
-  method: "POST",
-  headers: {
-    "Authorization": "Bearer " + token
-  },
-  body: JSON.stringify({
-    action: "getDashboardData",
-    clienteId: clienteId
+  fetch(PLANTILLA_API_URL, {
+    method: "POST",
+    body: formData
   })
-})
-.then(r => r.json())
-.then(res => {
-  console.log(res);
+  .then(r => r.json())
+  .then(res => {
+    if(res.ok){
+      alert("Mensaje guardado ❤️");
+    }
+  });
 });
+
+
 
   
 
