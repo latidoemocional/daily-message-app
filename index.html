@@ -1246,42 +1246,38 @@ function sendReply(){
   if (!text) return;
 
   const formData = new URLSearchParams();
-  formData.append("cliente", CLIENTE_ID);
   formData.append("tipo", "respuesta");
+  formData.append("cliente", CLIENTE_ID);
   formData.append("fecha", currentDateSelected);
-  formData.append("mensaje", text);
+  formData.append("respuesta", text);
 
   fetch(API_URL, {
     method: "POST",
     body: formData
   })
   .then(() => {
-    // ocultar textarea y botón
+    // ocultar textarea y botones
     textArea.style.display = "none";
     document.querySelector("#replyModal button").style.display = "none";
 
-    // mostrar mensaje de éxito
+    // mostrar mensaje pro
     const success = document.getElementById("replySuccess");
     success.style.display = "block";
     success.classList.add("reply-fade");
 
-    // cerrar modal suavemente
     setTimeout(() => {
       closeReply();
       closeModal();
 
-      // reset visual
       textArea.value = "";
       textArea.style.display = "";
       success.style.display = "none";
       success.classList.remove("reply-fade");
       document.querySelector("#replyModal button").style.display = "";
     }, 2500);
-  })
-  .catch(err => {
-    console.error("Error al enviar respuesta:", err);
   });
 }
+
 
 
 
