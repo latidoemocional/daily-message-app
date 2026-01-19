@@ -102,5 +102,71 @@ button:hover{
   <button>Copiar link</button>
 </div>
 
+
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzEETRXPcemtlrfXEz7sdOkQd0S_T1K-jxfbWJK_1dqTOeac2yknTuxsEvhopD42oWC/exec";
+
+const params = new URLSearchParams(window.location.search);
+const CLIENTE_ID = params.get("token");
+
+if (!CLIENTE_ID) {
+  document.body.innerHTML = "<h2>Acceso no autorizado</h2>";
+  throw new Error("Token faltante");
+}
+
+
+
+
+
+
+let mensajes = {};
+
+function loadDashboard() {
+  fetch(`${API_URL}?cliente=${CLIENTE_ID}&modo=dashboard`)
+    .then(r => r.json())
+    .then(data => {
+      mensajes = data.mensajes || {};
+      console.log("Mensajes cargados:", mensajes);
+    });
+}
+
+loadDashboard();
+
+
+
+
+document.querySelector("button").addEventListener("click", () => {
+  const fecha = document.getElementById("fecha").value;
+  const mensaje = document.getElementById("mensaje").value;
+  const emoji = document.getElementById("emoji").value;
+
+  if (!fecha || !mensaje) {
+    alert("Completa fecha y mensaje");
+    return;
+  }
+
+  const formData = new URLSearchParams();
+  formData.append("tipo", "guardarMensaje");
+  formData.append("cliente", CLIENTE_ID);
+  formData.append("fecha", fecha);
+  formData.append("mensaje", mensaje);
+  formData.append("emoji", emoji);
+
+  fetch(API_URL, {
+    method: "POST",
+    body: formData
+  })
+  .then(() => {
+    alert("Mensaje guardado 💖");
+  });
+});
+  
+
+
+  
+</script>
+
+
 </body>
 </html>
