@@ -24,27 +24,60 @@ body{
 
 
 
+/* Ajustes de las reacciones */
 .reactions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
 }
 
 .reaction {
-  font-size: 24px;
+  font-size: 28px; /* tamaño base */
   cursor: pointer;
   transition: transform 0.2s ease;
 }
 
 .reaction.selected {
-  transform: scale(1.6);
+  transform: scale(1.4); /* escala menor para no tapar nada */
+}
+
+
+.me-label {
+  font-size: 14px;
+  color: #c2185b;
+  font-weight: 500;
+}  
+
+
+
+
+
+
+/* Botones centrados y con espacio */
+.modal-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.modal-buttons button {
+  background: #ff5c8a;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 20px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.modal-buttons button:hover {
+  transform: scale(1.05);
 }
 
 
   
-
-
-
 
 
 .tooltip {
@@ -251,25 +284,41 @@ body{
 }
 
 
-.modal-box{
-  background:linear-gradient(180deg,#fff,#ffe6f0);
-  padding:30px 25px;
-  border-radius:24px;
-  max-width:320px;
-  box-shadow:0 15px 40px rgba(200,50,100,.25);
-  animation:pop .4s ease;
+.modal-box {
+  background: linear-gradient(180deg,#fff,#ffe6f0);
+  padding: 30px 25px;
+  border-radius: 24px;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 15px 40px rgba(200,50,100,.25);
+  animation: pop .4s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* espacio entre secciones */
 }
 
+
+/* Estado alineado a la izquierda y más pequeño */
+.writer-state {
+  text-align: left;
+  font-size: 14px;
+  color: #c2185b;
+  font-weight: 500;
+}
+
+  
+  
 @keyframes pop{
   from{transform:scale(.8); opacity:0;}
   to{transform:scale(1); opacity:1;}
 }
 
 
-#modalText{
-  font-size:18px;
-  line-height:1.5;
-  margin-bottom:20px;
+#modalText {
+  font-size: 18px;
+  line-height: 1.5;
+  text-align: center;
+  margin: 0;
 }
 
 
@@ -285,6 +334,16 @@ body{
 
 
 
+
+/* Contenedor de reacciones con bloque y fondo */
+.reactions-wrapper {
+  background: #ffe3ec;
+  border-radius: 16px;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: center;
+}
+  
 
 
 @media (max-width:480px){
@@ -698,18 +757,23 @@ body{
 
     <p id="modalText"></p>
     
-    <div id="reactions" class="reactions">
-      <span class="me-label">Me:</span>
-      <span class="reaction" data-emoji="❤️">❤️</span>
-      <span class="reaction" data-emoji="😢">😢</span>
-      <span class="reaction" data-emoji="😡">😡</span>
+    <div class="reactions-wrapper">
+      <div id="reactions" class="reactions">
+        <span class="me-label">Me:</span>
+        <span class="reaction" data-emoji="❤️">❤️</span>
+        <span class="reaction" data-emoji="😢">😢</span>
+        <span class="reaction" data-emoji="😡">😡</span>
+      </div>
     </div>
 
-    <button id="replyBtn" onclick="openReply()">Responder 💌</button>
-    <br><br>
-    <button onclick="closeModal()">Cerrar</button>
+    <div class="modal-buttons">
+      <button id="replyBtn" onclick="openReply()">Responder 💌</button>
+      <button onclick="closeModal()">Cerrar</button>
+    </div>
+
   </div>
 </div>
+
 
 
 
