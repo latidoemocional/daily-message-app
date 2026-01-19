@@ -1020,6 +1020,29 @@ function markDay(date) {
   // 👉 MOSTRAR MODAL
   modal.style.display = "flex";
 
+
+
+// 👉 BOTÓN RESPONDER
+const replyButton = document.querySelector("#replyModal button");
+const replyText = document.getElementById("replyText");
+const replySuccess = document.getElementById("replySuccess");
+
+if(mensajes[iso]?.respondido){
+  // si ya respondió → ocultar botón y textarea
+  if(replyButton) replyButton.style.display = "none";
+  if(replyText) replyText.style.display = "none";
+  if(replySuccess) replySuccess.style.display = "block"; // opcional: mostrar que ya respondió
+} else {
+  // si no respondió → mostrar botón y textarea
+  if(replyButton) replyButton.style.display = "";
+  if(replyText) replyText.style.display = "";
+  if(replySuccess) replySuccess.style.display = "none";
+}
+
+
+
+  
+
   // 👉 MARCAR COMO LEÍDO SOLO SI NO ESTABA MARCADO
   if (data.estado !== "marcado") {
     marcarHoyComoLeido(date);
