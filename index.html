@@ -1197,8 +1197,9 @@ function addTooltipEvents(el, text){
 
     const rect = el.getBoundingClientRect();
 
-    // ⚠️ usar tooltip directamente
-    tooltip.textContent = text || "";
+    // Solo actualizar el contenido interno
+    const tooltipText = document.getElementById("tooltipText");
+    tooltipText.textContent = text || "";
 
     tooltip.style.left =
       rect.left + rect.width / 2 + "px";
@@ -1209,6 +1210,7 @@ function addTooltipEvents(el, text){
     tooltip.classList.add("show");
   });
 }
+
 
 
 
