@@ -105,75 +105,87 @@ button:hover{
 
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycby689QTqrcRFD7C-tXUbIelrO11zP-eC5MSUjI3JKhqZFqZeo55Kbt9qS78386e0PajmQ/exec";
+// ==============================
+// CONFIG
+// ==============================
+const PLANTILLA_API_URL =
+  "https://script.google.com/macros/s/AKfycbzEETRXPcemtlrfXEz7sdOkQd0S_T1K-jxfbWJK_1dqTOeac2yknTuxsEvhopD42oWC/exec";
 
-
-
-
+// ==============================
+// SESIÓN
+// ==============================
 const token = localStorage.getItem("latidos_token");
 const clienteId = localStorage.getItem("latidos_cliente");
 
-  
-if(!token || !clienteId){
+if (!token || !clienteId) {
   alert("Acceso no autorizado");
   window.location.href = "login.html";
 }
 
-  
-
-
-
+// ==============================
+// ESTADO
+// ==============================
 let mensajes = {};
 
+// ==============================
+// CARGAR MENSAJES EXISTENTES
+// ==============================
 function loadDashboard() {
-  fetch(`${API_URL}?cliente=${CLIENTE_ID}&modo=dashboard`)
+  fetch(`${PLANTILLA_API_URL}?cliente=${clienteId}`)
     .then(r => r.json())
     .then(data => {
       mensajes = data.mensajes || {};
       console.log("Mensajes cargados:", mensajes);
+    })
+    .catch(err => {
+      console.error("Error cargando mensajes", err);
     });
 }
 
 loadDashboard();
 
+// ==============================
+// GUARDAR MENSAJE
+// ==============================
+document
+  .querySelector(".card button")
+  .addEventListener("click", () => {
 
+    const fecha = document.getElementById("fecha").value;
+    const mensaje = document.getElementById("mensaje").value;
+    const emoji = document.getElementById("emoji").value;
 
-document.querySelector("button").addEventListener("click", () => {
-  const fecha = document.getElementById("fecha").value;
-  const mensaje = document.getElementById("mensaje").value;
-  const emoji = document.getElementById("emoji").value;
-
-  if (!fecha || !mensaje) {
-    alert("Completa fecha y mensaje");
-    return;
-  }
-
-  const formData = new URLSearchParams();
-  formData.append("tipo", "guardarMensaje");
-  formData.append("cliente", clienteId); // 👈 clienteId real
-  formData.append("fecha", fecha);
-  formData.append("mensaje", mensaje);
-  formData.append("emoji", emoji);
-
-  fetch(PLANTILLA_API_URL, {
-    method: "POST",
-    body: formData
-  })
-  .then(r => r.json())
-  .then(res => {
-    if(res.ok){
-      alert("Mensaje guardado ❤️");
+    if (!fecha || !mensaje) {
+      alert("Completa fecha y mensaje");
+      return;
     }
+
+    const formData = new URLSearchParams();
+    formData.append("tipo", "guardarMensaje");
+    formData.append("cliente", clienteId);
+    formData.append("fecha", fecha);
+    formData.append("mensaje", mensaje);
+    formData.append("emoji", emoji);
+
+    fetch(PLANTILLA_API_URL, {
+      method: "POST",
+      body: formData
+    })
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok) {
+          alert("Mensaje guardado ❤️");
+          loadDashboard(); // refrescar datos
+        } else {
+          alert("Error al guardar");
+        }
+      })
+      .catch(err => {
+        console.error("Error guardando mensaje", err);
+      });
   });
-});
-
-
-
-  
-
-
-  
 </script>
+
 
 
 </body>
