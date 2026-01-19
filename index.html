@@ -995,6 +995,13 @@ function markDay(date) {
   // Aseguramos que exista el objeto
   const data = mensajes[date] || {};
 
+
+  // ❌ SI EL DÍA NO ESTÁ MARCADO → SOLO TOOLTIP
+  if (data.estado !== "marcado") {
+    showLostMessageTooltip(date); // 👈 tu tooltip actual
+    return; // 🔥 ESTO EVITA EL ERROR
+  }
+
   // 👉 ESTADO DEL ESCRITOR
   document.getElementById("writerState").textContent =
     data.emoji ? `Estado: ${data.emoji}` : "";
