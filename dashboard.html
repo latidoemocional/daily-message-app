@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard – Latido Emocional</title>
+
+<style>
+body{
+  font-family: "Poppins", sans-serif;
+  background: #fff0f6;
+  margin: 0;
+  padding: 20px;
+  color:#5c2a3d;
+}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:30px;
+}
+
+.card{
+  background:white;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  margin-bottom:20px;
+}
+
+h2{
+  margin-top:0;
+}
+
+input, textarea, select, button{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  font-family:inherit;
+}
+
+button{
+  background:#e91e63;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+
+button:hover{
+  opacity:.9;
+}
+
+.logout{
+  background:#999;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>💖 Mi Dashboard</h1>
+  <button class="logout">Cerrar sesión</button>
+</header>
+
+<!-- MENSAJE DEL DÍA -->
+<div class="card">
+  <h2>📅 Mensaje por fecha</h2>
+
+  <label>Fecha</label>
+  <input type="date" id="fecha">
+
+  <label>Estado (emoji)</label>
+  <select id="emoji">
+    <option value="">Sin estado</option>
+    <option value="❤️">❤️ Amor</option>
+    <option value="😢">😢 Triste</option>
+    <option value="⭐">⭐ Especial</option>
+  </select>
+
+  <label>Mensaje</label>
+  <textarea id="mensaje" rows="4"></textarea>
+
+  <button>Guardar mensaje</button>
+</div>
+
+<!-- RESPUESTAS -->
+<div class="card">
+  <h2>💌 Respuestas recibidas</h2>
+  <p>Próximamente…</p>
+</div>
+
+<!-- CONFIGURACIÓN -->
+<div class="card">
+  <h2>⚙️ Configuración</h2>
+
+  <label>Link público</label>
+  <input type="text" readonly value="https://...">
+
+  <button>Copiar link</button>
+</div>
+
+</body>
+</html>
