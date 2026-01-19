@@ -988,33 +988,36 @@ function renderCalendar(date){
 
 
 function markDay(date) {
-
   currentDateSelected = date;
   const data = mensajes[date] || {};
   const isToday = date === today.toISOString().split("T")[0];
 
-  // ❌ SOLO BLOQUEAR SI NO ES HOY Y NO ESTÁ MARCADO
-  if (!isToday && data.estado !== "marcado") {
-    showLostMessageTooltip(date);
-    return;
+  if (!isToday) {
+    // Días pasados → solo mostrar tooltip si no estaba marcado
+    if (data.estado !== "marcado") {
+      const dayEl = [...calendar.children].find(d => {
+        const iso = new Date(today.getFullYear(), today.getMonth(), d.textContent).toISOString().split("T")[0];
+        return iso === date;
+      });
+      showGuideTooltip(dayEl, "😢 Lo siento, perdiste el mensaje de esta fecha");
+    }
+    return; // ⚠️ salir, no abrir modal
   }
+
+  // Desde aquí → fecha de hoy, modal siempre abre
 
   // 👉 ESTADO DEL ESCRITOR
   const writerState = document.getElementById("writerState");
   if (writerState) {
-    writerState.textContent =
-      data.emoji ? `Estado: ${data.emoji}` : "";
+    writerState.textContent = data.emoji ? `Estado: ${data.emoji}` : "";
   }
 
   // 👉 MENSAJE
-  modalText.textContent =
-    data.mensaje || "💖 Hoy no había mensaje, pero te amo";
+  modalText.textContent = data.mensaje || "💖 Hoy no había mensaje, pero te amo";
 
   // 👉 MOSTRAR REACCIONES SOLO HOY
   const reactions = document.getElementById("reactions");
-  if (reactions) {
-    reactions.style.display = isToday ? "flex" : "none";
-  }
+  if (reactions) reactions.style.display = "flex";
 
   // 👉 MARCAR EMOJI SELECCIONADO (si existe)
   if (typeof marcarEmojiSeleccionado === "function") {
@@ -1024,27 +1027,65 @@ function markDay(date) {
   // 👉 MOSTRAR MODAL
   modal.style.display = "flex";
 
-  // 👉 MARCAR COMO LEÍDO SOLO SI ES HOY
-  if (isToday && data.estado !== "marcado") {
-    const formData = new URLSearchParams();
-    formData.append("tipo", "marcado");
-    formData.append("cliente", CLIENTE_ID);
-    formData.append("fecha", date);
-    formData.append("estado", "marcado");
-
-    fetch(API_URL, {
-      method: "POST",
-      body: formData
-    }).then(() => {
-      if (!mensajes[date]) mensajes[date] = {};
-      mensajes[date].estado = "marcado";
-      renderCalendar(new Date());
-    });
-
-    confettiHearts();
-    playMusic();
+  // 👉 MARCAR COMO LEÍDO SOLO SI NO ESTABA MARCADO
+  if (data.estado !== "marcado") {
+    marcarHoyComoLeido(date);
   }
 }
+
+// Función aparte para marcar hoy como leído
+function marcarHoyComoLeido(date) {
+  const formData = new URLSearchParams();
+  formData.append("tipo", "marcado");
+  formData.append("cliente", CLIENTE_ID);
+  formData.append("fecha", date);
+  formData.append("estado", "marcado");
+
+  fetch(API_URL, {
+    method: "POST",
+    body: formData
+  }).then(() => {
+    if (!mensajes[date]) mensajes[date] = {};
+    mensajes[date].estado = "marcado";
+    renderCalendar(new Date());
+  });
+
+  confettiHearts();
+  playMusic();
+}
+
+
+
+
+
+
+
+
+
+
+function marcarHoyComoLeido(date) {
+  const formData = new URLSearchParams();
+  formData.append("tipo", "marcado");
+  formData.append("cliente", CLIENTE_ID);
+  formData.append("fecha", date);
+  formData.append("estado", "marcado");
+
+  fetch(API_URL, {
+    method: "POST",
+    body: formData
+  }).then(() => {
+    if (!mensajes[date]) mensajes[date] = {};
+    mensajes[date].estado = "marcado";
+    renderCalendar(new Date());
+  });
+
+  confettiHearts();
+  playMusic();
+}
+
+
+  
+
 
 
 
@@ -1425,7 +1466,7 @@ function showGuideTooltip(targetEl, text){
   if (!tooltip || !targetEl) return;
 
   const tooltipText = document.getElementById("tooltipText");
-  if (!tooltipText) return; // ✅ chequeo de seguridad
+  if (!tooltipText) return;
 
   const rect = targetEl.getBoundingClientRect();
 
@@ -1436,11 +1477,11 @@ function showGuideTooltip(targetEl, text){
 
   tooltip.classList.add("show", "pulse");
 
-  // tooltip automático se cierra
   setTimeout(() => {
     if (tooltip) tooltip.classList.remove("show", "pulse");
   }, 5000);
 }
+
 
 
 
