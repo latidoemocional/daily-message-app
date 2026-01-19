@@ -1084,29 +1084,25 @@ function markDay(date) {
   // 👉 MOSTRAR MODAL
   modal.style.display = "flex";
 
+  // 👉 CONTROL DEL BOTÓN RESPONDER DEL MODAL PRINCIPAL
+  const replyButton = document.getElementById("replyBtn");
+  const localKey = "respondido_" + date;
+  const alreadyResponded = mensajes[date]?.respondido || localStorage.getItem(localKey);
 
-
-// 👉 CONTROL DEL BOTÓN RESPONDER
-const replyButton = document.getElementById("replyBtn");
-
-if(mensajes[date]?.respondido){
-  // ya respondió → ocultar botón
-  if(replyButton) replyButton.style.display = "none";
-} else {
-  // no respondió → mostrar botón
-  if(replyButton) replyButton.style.display = "inline-block";
-}
-
-
-
-
-  
+  if (replyButton) {
+    if (alreadyResponded) {
+      replyButton.style.display = "none"; // ocultamos el botón si ya respondió
+    } else {
+      replyButton.style.display = "inline-block"; // lo mostramos si no respondió
+    }
+  }
 
   // 👉 MARCAR COMO LEÍDO SOLO SI NO ESTABA MARCADO
   if (data.estado !== "marcado") {
     marcarHoyComoLeido(date);
   }
 }
+
 
 // Función aparte para marcar hoy como leído
 function marcarHoyComoLeido(date) {
@@ -1388,39 +1384,44 @@ function sendReply(){
   })
   .then(() => {
 
-  // ✅ marcar como respondido localmente
-  if (!mensajes[currentDateSelected]) {
-    mensajes[currentDateSelected] = {};
-  }
-  mensajes[currentDateSelected].respondido = true;
+    // ✅ marcar como respondido localmente
+    if (!mensajes[currentDateSelected]) {
+      mensajes[currentDateSelected] = {};
+    }
+    mensajes[currentDateSelected].respondido = true;
 
-  // UI feedback
-  textArea.style.display = "none";
-  document.querySelector("#replyModal button").style.display = "none";
+    // ✅ guardar en localStorage por fecha
+    const localKey = "respondido_" + currentDateSelected;
+    localStorage.setItem(localKey, "true");
 
-  const success = document.getElementById("replySuccess");
-  success.style.display = "block";
-  success.classList.add("reply-fade");
+    // UI feedback
+    textArea.style.display = "none";
+    document.querySelector("#replyModal button").style.display = "none";
 
-  setTimeout(() => {
-    closeReply();
-    closeModal();
+    const success = document.getElementById("replySuccess");
+    success.style.display = "block";
+    success.classList.add("reply-fade");
 
-    // 🔥 reset tooltip por seguridad
-    hideTooltip();
+    setTimeout(() => {
+      closeReply();
+      closeModal();
 
-    // 🔁 volver a dibujar calendario
-    renderCalendar(new Date());
+      // 🔥 reset tooltip por seguridad
+      hideTooltip();
 
-    textArea.value = "";
-    textArea.style.display = "";
-    success.style.display = "none";
-    success.classList.remove("reply-fade");
-    document.querySelector("#replyModal button").style.display = "";
-  }, 2500);
-});
+      // 🔁 volver a dibujar calendario
+      renderCalendar(new Date());
 
+      // reset del modal de respuesta
+      textArea.value = "";
+      textArea.style.display = "";
+      success.style.display = "none";
+      success.classList.remove("reply-fade");
+      document.querySelector("#replyModal button").style.display = "";
+    }, 2500);
+  });
 }
+
 
 
 
