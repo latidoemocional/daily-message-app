@@ -702,17 +702,12 @@ body{
 
 <div id="intro" class="intro">
   <div class="intro-card">
-    <h1>Para ti 💖</h1>
-    <p>
-      Cada día a tu lado es especial.<br>
-      Toca el corazón y comencemos esta historia.
-    </p>
+    <h1 id="introTitle"></h1>
+      <p id="introMessage"></p>
 
-    <button class="heart-btn" onclick="startExperience()">
-      ❤️
-    </button>
+      <button class="heart-btn" id="introEmojiBtn"></button>
+      <span class="hint" id="introHint"></span>
 
-    <span class="hint">Toca el corazón</span>
   </div>
 </div>
 
@@ -843,7 +838,7 @@ const modalText = document.getElementById("modalText");
 const tooltip = document.getElementById("tooltip");
 
 let mensajes = {};
-
+let dataFechasEspeciales = {};
 
 const params = new URLSearchParams(window.location.search);
 const CLIENTE_ID = params.get("c");
@@ -861,21 +856,7 @@ today.setHours(0,0,0,0);
 
   
 
-const monthImages = {
-  0: {
-    img: "https://raw.githubusercontent.com/asuarezmena/nanda-pocoyo/main/img/enero.png",
-    quote: "Comenzar el año contigo es mi mejor decisión 💖"
-  },
-  1: {
-    img: "https://raw.githubusercontent.com/asuarezmena/nanda-pocoyo/main/img/febrero.png",
-    quote: "Febrero contigo siempre será especial 💕"
-  },
-  2: {
-    img: "https://images.unsplash.com/photo-1495567720989-cebdbdd97913",
-    quote: "Nuestro amor también florece 🌸"
-  }
-  // luego puedes completar hasta diciembre
-};
+const monthImages = {};
 
 
 
@@ -915,11 +896,31 @@ function loadData() {
   fetch(`${API_URL}?cliente=${CLIENTE_ID}`)
     .then(r => r.json())
     .then(data => {
+
       mensajes = data.mensajes || {};
+      dataFechasEspeciales = data.fechasEspeciales || {};
+
+
+      // 🔥 INTRO DINÁMICA
+      renderIntro(data.intro);
+
+      // 🔥 MESES DINÁMICOS
+      if (data.meses) {
+        Object.assign(monthImages, data.meses);
+      }
+
+      // 🔥 MÚSICA DINÁMICA
+      if (data.musica?.url) {
+        const musicSource = document.querySelector("#loveMusic source");
+        musicSource.src = data.musica.url;
+        music.load();
+      }
+
       renderCalendar(new Date());
       renderHistory(new Date());
     });
 }
+
 
 loadData();
 
@@ -958,7 +959,16 @@ function renderCalendar(date){
     const div = document.createElement("div");
     div.className = "day";
     div.textContent = d.getDate();
-
+    
+    // 🎉 FECHA ESPECIAL
+    if (dataFechasEspeciales?.[iso]) {
+      div.textContent = dataFechasEspeciales[iso].emoji;
+      div.classList.add("marked");
+      addTooltipEvents(div, dataFechasEspeciales[iso].mensaje);
+    
+      calendar.appendChild(div);
+      continue;
+    }
     // 📌 DÍAS DE OTRO MES
     if(d.getMonth() !== m){
       div.classList.add("disabled");
@@ -1526,6 +1536,21 @@ document.querySelectorAll(".reaction").forEach(el => {
 
 
   
+function renderIntro(intro){
+  document.getElementById("introTitle").textContent =
+    intro?.titulo || "Para ti 💖";
+
+  document.getElementById("introMessage").innerHTML =
+    (intro?.mensaje || "Cada día contigo es especial.") +
+    "<br>" +
+    `Toca el ${intro?.emojiNombre || "corazón"} y comencemos esta historia.`;
+
+  document.getElementById("introEmojiBtn").textContent =
+    intro?.emoji || "❤️";
+
+  document.getElementById("introHint").textContent =
+    intro?.hint || "Toca el corazón";
+}
 
 
   
